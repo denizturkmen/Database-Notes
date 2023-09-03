@@ -1,4 +1,4 @@
-# High Avability Postgres Installatin with Patroni 
+# High Avability Postgres Installation with Patroni 
 
 **Postgres:**
 
