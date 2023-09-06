@@ -1,0 +1,172 @@
+##################################################
+# PostgreSQL Secret
+##################################################
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgresql-secret
+  namespace: postgres
+type: Opaque
+stringData:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: person
+  POSTGRES_HOSTNAME: "postgresql-svc"
+---
+##################################################
+# postgresql Service
+##################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-svc
+  namespace: postgres
+  labels:
+    app: postgresql
+spec:
+  selector:
+    app: postgresql
+  ports:
+    - port: 5432
+      targetPort: 5432
+  #  nodePort: 32564
+  type: ClusterIP
+---
+##################################################
+# postgresql Persistent Volume
+##################################################
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgresql-pv
+  namespace: postgres
+  labels:
+    app: postgresql
+spec:
+  hostPath:
+    path: "/mnt/k8s/postgresql"
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - k8s-master-1
+
+---
+##################################################
+# postgresql Persistent Volume Claims
+##################################################
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-pv-claim
+  namespace: postgres
+  labels:
+    app: postgresql
+spec:
+  resources:
+    requests:
+      storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  selector:
+    matchLabels:
+      app: postgresql
+---
+##################################################
+# postgresql Deployment
+##################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+  namespace: postgres
+  labels:
+    app: postgresql
+spec:
+  selector:
+    matchLabels:
+      app: postgresql
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgresql
+    spec:
+      containers:
+        - image: postgres:15
+          name: postgresql
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+            requests:
+              memory: "500Mi"
+              cpu: "500m"
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgresql-secret
+                  key: POSTGRES_DB
+          readinessProbe:
+            exec:
+              command:
+                 [
+                   "psql",
+                   "-w",
+                   "-U",
+                   "postgres",
+                   "-d",
+                   "person",
+                   "-c",
+                   "SELECT 1",
+                 ]
+            initialDelaySeconds: 15
+            timeoutSeconds: 2
+          livenessProbe:
+            exec:
+              command:
+                 [
+                   "psql",
+                   "-w",
+                   "-U",
+                   "postgres",
+                   "-d",
+                   "person",
+                   "-c",
+                   "SELECT 1",
+                 ]
+            initialDelaySeconds: 45
+            timeoutSeconds: 2
+          ports:
+            - containerPort: 5432
+              name: postgresql
+          volumeMounts:
+            - name: postgresql-persistent-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgresql-persistent-storage
+          persistentVolumeClaim:
+            claimName: postgresql-pv-claim
+---
+
