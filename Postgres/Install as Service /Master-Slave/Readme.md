@@ -127,6 +127,9 @@ rm -rf /var/lib/postgresql/15/main/
 # Backup slave machine before postgres service start
 sudo systemctl start postgresql.service
 
+# Postgres
+su - postgres
+
 pg_basebackup -h master_ip -D /var/lib/postgresql/15/main/ -U user_name -P -v -R -X stream -C -S slave_name
 
 pg_basebackup -h 192.168.1.25 -D /var/lib/postgresql/15/main/ -U masteruser -P -v -R -X stream -C -S slave1
