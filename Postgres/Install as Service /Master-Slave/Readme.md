@@ -75,7 +75,7 @@ psql
 CREATE USER user_name WITH REPLICATION ENCRYPTED PASSWORD 'password';
 
 # Create user
-CREATE USER master WITH REPLICATION ENCRYPTED PASSWORD 'NuXQ3PZpX5YR';
+CREATE USER masteruser WITH REPLICATION ENCRYPTED PASSWORD 'NuXQ3PZpX5YR';
 
 # list of User
 \du+
@@ -130,7 +130,7 @@ sudo systemctl start postgresql.service
 
 pg_basebackup -h master_ip -D /var/lib/postgresql/15/main/ -U user_name -P -v -R -X stream -C -S slave_name
 
-pg_basebackup -h 192.168.1.25 -D /var/lib/postgresql/15/main/ -U master -P -v -R -X stream -C -S slave1
+pg_basebackup -h 192.168.1.25 -D /var/lib/postgresql/15/main/ -U masteruser -P -v -R -X stream -C -S slave1
 
 # Restart
 sudo systemctl restart postgresql.service
