@@ -84,8 +84,7 @@ CREATE USER masteruser WITH REPLICATION ENCRYPTED PASSWORD 'NuXQ3PZpX5YR';
 
 **Note:** Password is important because we will use this password from **slave** machine
 
-Configure pg_hba
-We enter the slave machine information
+Configure pg_hba. We enter the slave machine information on Master machine
 ``` bash
 sudo vim pg_hba.conf
 
