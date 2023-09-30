@@ -28,7 +28,7 @@ sudo vim /etc/hosts
 
 ```
 
-Now let's install MongoCE** on all nodes.
+Now let's install **MongoCE** on all nodes.
 ``` bash
 # dowland
 wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
