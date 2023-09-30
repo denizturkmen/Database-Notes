@@ -28,7 +28,7 @@ sudo vim /etc/hosts
 
 ```
 
-Now let's install Mongoce on all nodes.
+Now let's install MongoCE** on all nodes.
 ``` bash
 # dowland
 wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
@@ -118,14 +118,8 @@ mongo -u admin -p denizturkmen
 ```
 
 
-Configuration mongo.conf
+Configuration **mongod.conf** all on the nodes.
 ``` bash
-# go to directory
-cd /etc
-
-# open config
-sudo vim mongod.conf
-
 # diretory create
 sudo mkdir -p /etc/mongo/key
 
@@ -136,9 +130,12 @@ sudo cp prirepkey /etc/mongo/key/
 cd /etc/mongo/key
 sudo chown -R mongodb:mongodb prirepkey 
 
+# go to directory
+cd /etc
+
 # edit mongo.conf on all node
 cd /etc
-sudo vim mongo.conf
+sudo vim mongod.conf
 
 # network interfaces
 net:
